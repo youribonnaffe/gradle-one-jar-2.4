@@ -1,0 +1,52 @@
+apply plugin: 'java'
+apply plugin: 'gradle-one-jar'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'org.slf4j:slf4j-api:1.7.12'
+    testCompile 'junit:junit:4.12'
+}
+
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.github.rholder:gradle-one-jar:1.0.4'
+    }
+}
+
+task oneJar(type: OneJar){
+    mainClass = 'org.blah.Fooo'
+}
+
+task print(dependsOn: oneJar) << {
+    println oneJar.outputs.files*.name
+}
+
+task oneJarDebug(type: CustomOneJar){
+    mainClass = 'org.blah.Fooo'
+}
+
+task printDebug(dependsOn: oneJar) << {
+    println oneJar.outputs.files*.name
+}
+
+class CustomOneJar extends com.github.rholder.gradle.task.OneJar {
+    @Override
+    String getArchiveName() {
+        try {
+            throw new Exception()
+        }catch(Exception e){
+            e.printStackTrace()
+        }
+        def name = super.getArchiveName()
+        println "called " + name
+        return name
+    }
+}
